@@ -1,0 +1,7 @@
+.cardDesk {
+  width: 70%;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  perspective: 600px;
+}

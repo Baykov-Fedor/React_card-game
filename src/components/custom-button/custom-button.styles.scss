@@ -1,0 +1,20 @@
+.custom-button {
+  font-size: 1rem;
+  padding: 0.5rem;
+  border-radius: 3px;
+  background-color: #371110;
+  color: white;
+  border: none;
+  margin: 0;
+  outline: none;
+  transition: all 0.5s;
+  &.disabled {
+    &:hover {
+      cursor: none;
+    }
+  }
+  &:hover {
+    background-color: #692321;
+    cursor: pointer;
+  }
+}
