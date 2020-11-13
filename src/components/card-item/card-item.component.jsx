@@ -11,7 +11,7 @@ function Card(props) {
       ) : (
         <div className={`card--face ${props.suit}`}>
           {/* В зависимости от suit будем менять стиль карты*/}
-          <p>{props.number}</p>
+          <p className="card--face--number">{props.number}</p>
         </div>
       )}
     </div>

@@ -1,4 +1,5 @@
 .card {
+  font-size: 1.5rem;
   width: 5rem;
   height: 7rem;
   border: 1px solid black;
@@ -13,6 +14,11 @@
     background-repeat: no-repeat;
     background-size: cover;
     font-size: 0;
+  }
+  &--face {
+    &--number {
+      margin: 0.5rem 0;
+    }
   }
   &:hover {
     box-shadow: 0 0 0 2px white, 0 0 0 4px green;
