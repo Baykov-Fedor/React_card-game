@@ -9,20 +9,18 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      userName: "",
-      difficulty: "easy",
       showModal: true,
     };
     this.submitForm = this.submitForm.bind(this);
-    this.handleChange = this.handleChange.bind(this);
+    // this.handleChange = this.handleChange.bind(this);
   }
 
-  handleChange(evt) {
-    const value = evt.target.value;
-    this.setState({
-      [evt.target.name]: value,
-    });
-  }
+  // handleChange(evt) {
+  //   const value = evt.target.value;
+  //   this.setState({
+  //     [evt.target.name]: value,
+  //   });
+  // }
 
   submitForm(e) {
     e.preventDefault();
@@ -42,19 +40,9 @@ class App extends React.Component {
   render() {
     return (
       <div className="App">
-        {this.state.showModal ? (
-          <Welcome
-            submit={this.submitForm}
-            onChange={this.handleChange}
-            name={this.state.userName}
-            difficulty={this.state.difficulty}
-          />
-        ) : null}
+        {this.state.showModal ? <Welcome submit={this.submitForm} /> : null}
 
-        <Game
-          difficulty={this.state.difficulty}
-          playerName={this.state.userName}
-        />
+        <Game />
       </div>
     );
   }

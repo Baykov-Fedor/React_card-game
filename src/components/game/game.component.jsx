@@ -1,4 +1,5 @@
 import React from "react";
+import { connect } from "react-redux";
 
 import CardCollection from "../card-collection/card-collection.component.jsx";
 import Deck from "../deck/deck.component.jsx";
@@ -78,14 +79,14 @@ class Game extends React.Component {
     let copyArr = [...stateArr];
     copyArr.map((value) => (value[2] = 1));
 
-    let playerName = this.props.playerName;
+    let userName = this.props.userName;
     let turn = this.state.turn;
 
     this.setState({
       win: true,
       arrOfCards: [...copyArr],
     });
-    let newRecord = { [playerName]: turn };
+    let newRecord = { [userName]: turn };
     let oldRecords = JSON.parse(localStorage.getItem("CardGame"));
     let tempObj = { ...oldRecords, ...newRecord };
     localStorage.setItem("CardGame", JSON.stringify(tempObj));
@@ -173,7 +174,6 @@ class Game extends React.Component {
             onClick={this.state.clickable ? this.handleEvent : null}
           />
           <Deck
-            player={this.props.playerName}
             toLeaderBoard={this.openLeaderboard}
             turn={this.state.turn}
             win={this.winGame}
@@ -185,4 +185,9 @@ class Game extends React.Component {
   }
 }
 
-export default Game;
+const mapStateToProps = (state) => ({
+  userName: state.user.currentUser,
+  difficulty: state.user.currentDifficulty,
+});
+
+export default connect(mapStateToProps)(Game);
