@@ -19,21 +19,3 @@ function Card(props) {
 }
 
 export default Card;
-
-// function getCard(num) {
-//   if (num <= 10) return num;
-//   else {
-//     switch(x) {
-//       case '11':
-//         return 'J';
-//       case '12':
-//         return 'Q';
-//       case '13':
-//         return 'K';
-//       case '14':
-//         return 'A';
-//       default:
-//         break;
-//     }
-//   }
-// }

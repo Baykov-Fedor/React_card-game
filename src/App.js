@@ -12,15 +12,7 @@ class App extends React.Component {
       showModal: true,
     };
     this.submitForm = this.submitForm.bind(this);
-    // this.handleChange = this.handleChange.bind(this);
   }
-
-  // handleChange(evt) {
-  //   const value = evt.target.value;
-  //   this.setState({
-  //     [evt.target.name]: value,
-  //   });
-  // }
 
   submitForm(e) {
     e.preventDefault();
@@ -41,7 +33,6 @@ class App extends React.Component {
     return (
       <div className="App">
         {this.state.showModal ? <Welcome submit={this.submitForm} /> : null}
-
         <Game />
       </div>
     );

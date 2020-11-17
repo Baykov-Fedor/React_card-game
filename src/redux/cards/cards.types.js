@@ -1,4 +1,7 @@
 export const cardsActionTypes = {
   OPEN_CARD: "OPEN_CARD",
   CLOSE_CARD: "CLOSE_CARD",
+  SET_ARR_OF_CARDS: "SET_ARR_OF_CARDS",
+  SET_CARDS_STATE: "SET_CARDS_STATE",
+  SET_MATCH: "SET_MATCH",
 };

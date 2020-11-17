@@ -7,7 +7,7 @@ function Deck(props) {
   return (
     <div className="deck">
       <div className="deck--elements player">Player: {props.userName}</div>
-      <div className="deck--elements turn">Turn: {props.turn}</div>
+      <div className="deck--elements turn">Turn: {props.currentTurns}</div>
       <CustomButton onClick={props.toLeaderBoard}>Leaderboard</CustomButton>
       <CustomButton onClick={props.reset}>Reset</CustomButton>
       <CustomButton onClick={props.win}>Cheat</CustomButton>
@@ -17,6 +17,7 @@ function Deck(props) {
 
 const mapStateToProps = (state) => ({
   userName: state.user.currentUser,
+  currentTurns: state.user.currentTurns,
 });
 
 export default connect(mapStateToProps)(Deck);

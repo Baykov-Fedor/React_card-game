@@ -8,7 +8,6 @@ import ModalWindow from "../modal-window/modal-window.component";
 
 import "./welcome.styles.scss";
 
-// props = {setCurrentDifficulty, setCurrentUser, userName, difficulty, submit }
 function Welcome({
   setCurrentDifficulty,
   setCurrentUser,

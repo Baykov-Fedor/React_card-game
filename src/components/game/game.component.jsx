@@ -4,9 +4,19 @@ import { connect } from "react-redux";
 import CardCollection from "../card-collection/card-collection.component.jsx";
 import Deck from "../deck/deck.component.jsx";
 import LeaderBoard from "../leaderboard/leaderboard.component.jsx";
-
-import collection from "./game.data.js";
-import { shuffle } from "./game.utils";
+import {
+  closeCard,
+  openCard,
+  setArrOfCards,
+  setCardsState,
+  setMatch,
+} from "../../redux/cards/cards.actions.js";
+import {
+  increaseNumOfTurns,
+  resetNumOfTurns,
+} from "../../redux/user/user.actions.js";
+import { newCollection } from "./game.data.js";
+import { createRandomCards } from "./game.utils";
 
 import "./game.styles.scss";
 
@@ -14,117 +24,95 @@ class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      turn: 0,
-      arrOfCards: [],
-      match: "",
-      win: false,
       numOfGuessedCards: 0,
+      win: false,
       clickable: true,
       showLeader: false,
     };
     this.handleEvent = this.handleEvent.bind(this);
-    this.resetGame = this.resetGame.bind(this);
-    this.winGame = this.winGame.bind(this);
   }
 
-  createRandomCards(difficulty) {
-    let newArr = [];
-    switch (difficulty) {
-      // В зависимости от сложности игры мы берём разное кол-во карт из коллекции
-      // Создаём этим картам пары и перемешиваем
-      case "easy":
-        newArr = collection.slice(0, 10);
-        newArr = [...newArr, ...newArr];
-        return shuffle(newArr);
-      case "medium":
-        newArr = collection.slice(0, 13);
-        newArr = [...newArr, ...newArr];
-        return shuffle(newArr);
-      case "hard":
-        newArr = collection.slice(0, 15);
-        newArr = [...newArr, ...newArr];
-        return shuffle(newArr);
-      default:
-        break;
-    }
-  }
   // Когда компонент монтируется, то на основе выбранной ранее сложности замешивается колода
-  componentDidMount() {
-    this.setState({
-      arrOfCards: this.createRandomCards(this.props.difficulty),
-    });
+  async componentDidMount() {
+    await this.props.setArrOfCards(
+      createRandomCards(newCollection, this.props.difficulty)
+    );
+    await this.props.setCardsState([...this.props.arrOfCards].fill(0));
   }
 
-  componentDidUpdate(prevProps) {
+  async componentDidUpdate(prevProps) {
     if (prevProps.difficulty !== this.props.difficulty) {
-      this.setState({
-        arrOfCards: this.createRandomCards(this.props.difficulty),
-      });
+      await this.props.setArrOfCards(
+        createRandomCards(newCollection, this.props.difficulty)
+      );
+      await this.props.setCardsState([...this.props.arrOfCards].fill(0));
     }
   }
 
-  resetGame() {
+  resetGame = () => {
+    this.props.setArrOfCards(
+      createRandomCards(newCollection, this.props.difficulty)
+    );
+    this.props.setCardsState([...this.props.arrOfCards].fill(0));
+    this.props.setMatch(null);
+    this.props.resetNumOfTurns();
     this.setState({
-      arrOfCards: this.createRandomCards(this.props.difficulty),
-      turn: 0,
-      match: "",
       win: false,
-      numOfGuessedCards: 0,
     });
-  }
+  };
 
-  winGame() {
-    // For testing
-    let stateArr = this.state.arrOfCards;
-    let copyArr = [...stateArr];
-    copyArr.map((value) => (value[2] = 1));
+  // For testing
+  test = () => {
+    let stateArr = this.props.cardsState;
+    stateArr.map((value, index) => openCard(index));
+    this.winGame();
+  };
 
+  winGame = () => {
     let userName = this.props.userName;
-    let turn = this.state.turn;
-
+    let turn = this.props.currentTurns;
     this.setState({
       win: true,
-      arrOfCards: [...copyArr],
     });
     let newRecord = { [userName]: turn };
     let oldRecords = JSON.parse(localStorage.getItem("CardGame"));
     let tempObj = { ...oldRecords, ...newRecord };
     localStorage.setItem("CardGame", JSON.stringify(tempObj));
-  }
+  };
 
-  handleEvent(e) {
+  handleEvent = (e) => {
+    const {
+      arrOfCards,
+      openCard,
+      closeCard,
+      increaseNumOfTurns,
+      match,
+      setMatch,
+    } = this.props;
     let target = e.target;
     if (target.className === "card--back") {
-      let stateArr = this.state.arrOfCards;
-      let prevIndex = this.state.match;
+      let prevIndex = match;
       // Будем узнавать карту по индексу, который лежит в кач-ве innnerText
       let curIndex = parseInt(target.innerText);
-      let curCard = stateArr[curIndex].slice(0, 2);
-      let copyArr = [...stateArr];
-      copyArr[curIndex][2] = 1;
+      let curCard = arrOfCards[curIndex].split("-");
       // В любом случае открываем карту
-      this.setState({
-        arrOfCards: [...copyArr],
-      });
+      openCard(curIndex);
       // Если у нас уже есть открытая карта
       if (typeof prevIndex === "number") {
-        let prevCard = stateArr[prevIndex].slice(0, 2);
-        let turnsNum = this.state.turn;
+        let prevCard = arrOfCards[prevIndex].split("-");
         let GuessedCards = this.state.numOfGuessedCards;
-        this.setState({
-          match: "",
-          turn: turnsNum + 1,
-        });
+        setMatch(null);
+        increaseNumOfTurns();
         // Если ранеее открытая карта === текущей открытой карте
-        if (curCard.every((value, index) => value === prevCard[index])) {
+        if (curCard[0] === prevCard[0]) {
           GuessedCards += 2;
           this.setState(
             {
               numOfGuessedCards: GuessedCards,
             },
+            // Если мы отгадали вообще все карты
             () => {
-              // Если мы отгадали вообще все карты
-              if (GuessedCards === this.props.difficulty) this.winGame();
+              if (GuessedCards === arrOfCards.length) this.winGame();
             }
           );
           // ранеее открытая карта != текущей открытой карте
@@ -137,23 +125,18 @@ class Game extends React.Component {
             // А через 1с закроем обе
             () =>
               setTimeout(() => {
-                copyArr[prevIndex][2] = 0;
-                copyArr[curIndex][2] = 0;
-                this.setState({
-                  arrOfCards: [...copyArr],
-                  clickable: true,
-                });
+                closeCard(prevIndex);
+                closeCard(curIndex);
+                this.setState({ clickable: true });
               }, 1000)
           );
         }
       } else {
         // Если у нас нету ранее открытой карты
-        this.setState({
-          match: curIndex,
-        });
+        setMatch(curIndex);
       }
     } else return;
-  }
+  };
 
   openLeaderboard = () => {
     this.setState({
@@ -170,13 +153,11 @@ class Game extends React.Component {
         {this.state.win ? <h2>You are winner!</h2> : null}
         <div className="game--main">
           <CardCollection
-            cardsArr={this.state.arrOfCards}
             onClick={this.state.clickable ? this.handleEvent : null}
           />
           <Deck
             toLeaderBoard={this.openLeaderboard}
-            turn={this.state.turn}
-            win={this.winGame}
+            win={this.test}
             reset={this.resetGame}
           />
         </div>
@@ -188,6 +169,20 @@ class Game extends React.Component {
 const mapStateToProps = (state) => ({
   userName: state.user.currentUser,
   difficulty: state.user.currentDifficulty,
+  currentTurns: state.user.currentTurns,
+  arrOfCards: state.cards.arrOfCards,
+  cardsState: state.cards.cardsState,
+  match: state.cards.match,
 });
 
-export default connect(mapStateToProps)(Game);
+const mapDispatchToProps = (dispatch) => ({
+  setArrOfCards: (arr) => dispatch(setArrOfCards(arr)),
+  openCard: (index) => dispatch(openCard(index)),
+  closeCard: (index) => dispatch(closeCard(index)),
+  increaseNumOfTurns: () => dispatch(increaseNumOfTurns()),
+  resetNumOfTurns: () => dispatch(resetNumOfTurns()),
+  setMatch: (index) => dispatch(setMatch(index)),
+  setCardsState: (arr) => dispatch(setCardsState(arr)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Game);
