@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { connect } from "react-redux";
 import {
   setCurrentDifficulty,
@@ -13,8 +13,9 @@ function Welcome({
   setCurrentUser,
   userName,
   difficulty,
-  submit,
 }) {
+  const [showModal, setShowModal] = useState(true);
+
   let handleChange = (evt) => {
     const value = evt.target.value;
     const name = evt.target.name;
@@ -28,10 +29,23 @@ function Welcome({
     }
   };
 
-  return (
+  let submitForm = (evt) => {
+    evt.preventDefault();
+    if (userName === "") {
+      document.querySelector("#name").classList.toggle("error");
+      setTimeout(
+        () => document.querySelector("#name").classList.toggle("error"),
+        500
+      );
+      return;
+    }
+    setShowModal(false);
+  };
+
+  return showModal ? (
     <ModalWindow>
       <div className="game-settings">
-        <form className="game-settings--form" id="form" onSubmit={submit}>
+        <form className="game-settings--form" id="form" onSubmit={submitForm}>
           <input
             type="text"
             name="userName"
@@ -60,7 +74,7 @@ function Welcome({
         </form>
       </div>
     </ModalWindow>
-  );
+  ) : null;
 }
 
 const mapStateToProps = (state) => ({

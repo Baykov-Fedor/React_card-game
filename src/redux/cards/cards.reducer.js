@@ -1,4 +1,8 @@
-import { closeCardHelper, openCardHelper } from "./cards.utils";
+import {
+  closeCardHelper,
+  openAllCardsHelper,
+  openCardHelper,
+} from "./cards.utils";
 
 const { cardsActionTypes } = require("./cards.types");
 
@@ -29,6 +33,11 @@ const cardsReducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         cardsState: openCardHelper(state.cardsState, action.payload),
+      };
+    case cardsActionTypes.OPEN_ALL_CARDS:
+      return {
+        ...state,
+        cardsState: openAllCardsHelper(state.cardsState),
       };
     case cardsActionTypes.CLOSE_CARD:
       return {

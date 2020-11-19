@@ -6,6 +6,7 @@ import Deck from "../deck/deck.component.jsx";
 import LeaderBoard from "../leaderboard/leaderboard.component.jsx";
 import {
   closeCard,
+  openAllCards,
   openCard,
   setArrOfCards,
   setCardsState,
@@ -58,13 +59,13 @@ class Game extends React.Component {
     this.props.resetNumOfTurns();
     this.setState({
       win: false,
+      numOfGuessedCards: 0,
     });
   };
 
   // For testing
   test = () => {
-    let stateArr = this.props.cardsState;
-    stateArr.map((value, index) => openCard(index));
+    this.props.openAllCards();
     this.winGame();
   };
 
@@ -75,9 +76,16 @@ class Game extends React.Component {
       win: true,
     });
     let newRecord = { [userName]: turn };
-    let oldRecords = JSON.parse(localStorage.getItem("CardGame"));
+    let oldRecords = JSON.parse(localStorage.getItem(this.props.difficulty));
+    // Если в таблице сидит лучший рекорд.
+    if (
+      oldRecords !== null &&
+      userName in oldRecords &&
+      oldRecords[userName] < turn
+    )
+      return;
     let tempObj = { ...oldRecords, ...newRecord };
-    localStorage.setItem("CardGame", JSON.stringify(tempObj));
+    localStorage.setItem(this.props.difficulty, JSON.stringify(tempObj));
   };
 
   handleEvent = (e) => {
@@ -183,6 +191,7 @@ const mapDispatchToProps = (dispatch) => ({
   resetNumOfTurns: () => dispatch(resetNumOfTurns()),
   setMatch: (index) => dispatch(setMatch(index)),
   setCardsState: (arr) => dispatch(setCardsState(arr)),
+  openAllCards: () => dispatch(openAllCards()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Game);

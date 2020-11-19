@@ -5,6 +5,10 @@ export const openCard = (index) => ({
   payload: index,
 });
 
+export const openAllCards = () => ({
+  type: cardsActionTypes.OPEN_ALL_CARDS,
+});
+
 export const closeCard = (index) => ({
   type: cardsActionTypes.CLOSE_CARD,
   payload: index,

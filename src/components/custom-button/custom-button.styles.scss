@@ -10,7 +10,8 @@
   transition: all 0.5s;
   &.disabled {
     &:hover {
-      cursor: none;
+      cursor: default;
+      background-color: #371110;
     }
   }
   &:hover {

@@ -1,10 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { connect } from "react-redux";
 import CustomButton from "../custom-button/custom-button.component";
 import ModalWindow from "../modal-window/modal-window.component";
 import "./leaderboard.styles.scss";
 
-function LeaderBoard(props) {
-  const [data, setData] = useState(localStorage.getItem("CardGame"));
+function LeaderBoard({ toLeaderBoard, globalDifficulty, ...otherProps }) {
+  // Создаём
+  const [difficulty, setDifficulty] = useState(globalDifficulty);
+  const [data, setData] = useState(localStorage.getItem(difficulty));
+
+  // При обновлении сложности - обновляем данные для отображения
+  useEffect(() => setData(localStorage.getItem(difficulty)), [difficulty]);
 
   function clearLeaderboard() {
     localStorage.clear();
@@ -17,12 +23,34 @@ function LeaderBoard(props) {
     for (let name in tempData) {
       gameData.push([name, tempData[name]]);
     }
-    return gameData;
+    return gameData.sort(function (a, b) {
+      return a[1] - b[1];
+    });
   }
 
   return (
     <ModalWindow>
       <div className="leaderboard">
+        <div className="leaderboard--controls">
+          <CustomButton
+            onClick={() => setDifficulty("easy")}
+            disabled={difficulty === "easy"}
+          >
+            Easy
+          </CustomButton>
+          <CustomButton
+            onClick={() => setDifficulty("medium")}
+            disabled={difficulty === "medium"}
+          >
+            Meduim
+          </CustomButton>
+          <CustomButton
+            onClick={() => setDifficulty("hard")}
+            disabled={difficulty === "hard"}
+          >
+            Hard
+          </CustomButton>
+        </div>
         <table className="leaderboard--table">
           <thead>
             <tr>
@@ -47,11 +75,15 @@ function LeaderBoard(props) {
           <CustomButton onClick={clearLeaderboard}>
             Clear Leaderboard
           </CustomButton>
-          <CustomButton onClick={props.toLeaderBoard}>Close</CustomButton>
+          <CustomButton onClick={toLeaderBoard}>Close</CustomButton>
         </div>
       </div>
     </ModalWindow>
   );
 }
 
-export default LeaderBoard;
+const mapStateToProps = (state) => ({
+  globalDifficulty: state.user.currentDifficulty,
+});
+
+export default connect(mapStateToProps)(LeaderBoard);
